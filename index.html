@@ -1,7 +1,139 @@
 <html>
-<head>
-</head>
-<body>
-  <h1>hi!!!</h1>
-</body>
+	<head>
+		<script src="jquery-3.0.0.min.js"></script>
+		<script src="jquery.color.js"></script>
+	</head>
+	<body>
+		<div>Age: <span id="age">000</span></div>
+		<div>Signs of maturity: <span id="mature">???</span></div>
+		
+		<input id="go" type="button" value="Go"/>
+		
+		<div class="quizpanel" id="breathingPanel" style="display:none">
+			Breathing: <span id="breathing">000</span>
+			<div id="options">
+				<input id="bradypnea" type="button" value="Bradypnea" v=-1>
+				<input id="normalBreathing" type="button" value="Normal" v=0>
+				<input id="tachipnea" type="button" value="Tachipnea" v=1>
+			</div>
+		</div>
+		
+		<div class="quizpanel" id="pulsePanel" style="display:none">
+			Pulse: <span id="pulse">000</span>
+			<div id="options">
+				<input id="bradycardia" type="button" value="Bradycardia">
+				<input id="normalPulse" type="button" value="Normal">
+				<input id="tachicardia" type="button" value="Tachicardia">
+			</div>
+		</div>
+		
+		<div class="quizpanel" id="bloodPressurePanel" style="display:none">
+			Blood Pressure: <span id="bloodPressure">000</span>
+			<div id="options">
+				<input id="lowBloodPressure" type="button" value="Low">
+				<input id="normalBloodPressure" type="button" value="Normal">
+				<input id="highBloodPressure" type="button" value="High">
+			</div>
+		</div>
+		
+		<script>
+			var patiant = {
+				age:0,
+				isMature:false
+			};
+			
+			function rangeForAge(age, data) {
+				var range;
+				for(var key in data) {
+					if(key > age) break;
+					range = stats.breathing[key];
+				}
+				return range;
+			}
+		
+			var stats = {
+				breathing: {
+					[0]: {min: 30, max:60},
+					[365]: {min: 24, max:40},
+					[4*365]: {min: 22, max:34},
+					[6*365]: {min: 18, max:30},
+					[12*365]: {min: 12, max:20}
+				}
+			};
+			
+			var generate = {
+				breathing: function(ageDays) {
+					var range = rangeForAge(ageDays, stats.breathing);
+					var diff = range.max - range.min;
+					value = random(range.min-diff/2, range.max+diff/2);
+					return Math.floor(value);
+				}
+			}
+			
+			var check = {
+				breathing: function(age, value){
+					var range = rangeForAge(age, stats.breathing);
+					if(value < range.min) return -1;
+					if(range.max < value) return 1;
+					return 0;
+				}
+			}
+			
+			
+		
+			function random(min, max){
+				return min + Math.random() * (max-min);
+			}
+			
+			function factor(value, fact){
+				
+			}
+			
+			function hideAll(){
+				$(".quizpanel").hide();
+			}
+		
+			function show(panel){
+				$("#"+panel).show();
+			}
+			
+			$("#breathingPanel #options input").click(function(){
+				var selectedVal = $(this).attr("v");
+				var correctVal = check.breathing(patiant.ageDays, $("#breathing").text());
+				
+				if(selectedVal == correctVal){
+					$("#breathingPanel").css("backgroundColor", "green");
+					$("#breathingPanel").animate({ backgroundColor: "white" }, "slow");			
+					randomizePatient();
+					goBreathing();
+				} else {
+					$("#breathingPanel").css("backgroundColor", "red");
+					$("#breathingPanel").animate({ backgroundColor: "white" }, "slow");		
+				}
+			});
+			
+			function goBreathing(ageDays, isMature){
+				hideAll();
+				$("#breathingPanel").show();
+					
+				var rate = generate.breathing(ageDays);
+				$("#breathing").text(rate);
+			}
+			
+			function randomizePatient() {
+				patiant.ageDays = random(0*365,30*365);
+				patiant.isMature = patiant.ageDays/365 > random(10, 21);
+				
+				var ageString = patiant.ageDays < 365 ? Math.floor(patiant.ageDays) + " days" : Math.floor(patiant.ageDays/365) + " years";
+				
+				$("#age").text(ageString);
+				$("#mature").text(patiant.isMature ? "yes" : "no");
+			}
+			
+			$("#go").click(function() {
+				randomizePatient();
+				goBreathing();
+			});
+		</script>
+	</body>
 </html>
