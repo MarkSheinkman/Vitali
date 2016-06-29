@@ -1,7 +1,18 @@
 <html>
 	<head>
 		<script src="jquery-3.0.0.min.js"></script>
+		<script src="jquery-ui-1.11.4/jquery-ui.js"></script>
+		<link rel="stylesheet" href="jquery-ui-1.11.4/jquery-ui.css">
 		<script src="jquery.color.js"></script>
+		<style>
+			body{
+				font-size: 2em;
+				font-family: Arial;
+			}
+			.quizpanel {
+				margin:10px
+			}
+		</style>
 	</head>
 	<body>
 		<div>Age: <span id="age">000</span></div>
@@ -9,130 +20,206 @@
 		
 		<input id="go" type="button" value="Go"/>
 		
-		<div class="quizpanel" id="breathingPanel" style="display:none">
+		<div class="quizpanel" id="breathingPanel">
 			Breathing: <span id="breathing">000</span>
-			<div id="options">
-				<input id="bradypnea" type="button" value="Bradypnea" v=-1>
-				<input id="normalBreathing" type="button" value="Normal" v=0>
-				<input id="tachipnea" type="button" value="Tachipnea" v=1>
+			<div class="options">
+				<input type="radio" name="breathingOption" id="b-1" text="Bradypnea">
+				<input type="radio" name="breathingOption" id="b0" 	  text="Normal">
+				<input type="radio" name="breathingOption" id="b1" text="Tachipnea">
 			</div>
 		</div>
 		
-		<div class="quizpanel" id="pulsePanel" style="display:none">
+		<div class="quizpanel" id="pulsePanel">
 			Pulse: <span id="pulse">000</span>
-			<div id="options">
-				<input id="bradycardia" type="button" value="Bradycardia">
-				<input id="normalPulse" type="button" value="Normal">
-				<input id="tachicardia" type="button" value="Tachicardia">
+			<div class="options">
+				<input type="radio" name="pulseOption" id="p-1" text="Bradycardia">
+				<input type="radio" name="pulseOption" id="p0" text="Normal">
+				<input type="radio" name="pulseOption" id="p1" text="Tachicardia">
 			</div>
 		</div>
 		
-		<div class="quizpanel" id="bloodPressurePanel" style="display:none">
+		<div class="quizpanel" id="bloodPressurePanel">
 			Blood Pressure: <span id="bloodPressure">000</span>
-			<div id="options">
-				<input id="lowBloodPressure" type="button" value="Low">
-				<input id="normalBloodPressure" type="button" value="Normal">
-				<input id="highBloodPressure" type="button" value="High">
+			<div class="options">
+				<input type="radio" name="bloodPressureOption" id="r-1"    text="Low">
+				<input type="radio" name="bloodPressureOption" id="r0" text="Normal">
+				<input type="radio" name="bloodPressureOption" id="r1"   text="High">
 			</div>
+		</div>
+		
+		<div>
+			<input type="button" id="check" value="OK"/>
 		</div>
 		
 		<script>
-			var patiant = {
-				age:0,
-				isMature:false
-			};
-			
-			function rangeForAge(age, data) {
-				var range;
-				for(var key in data) {
-					if(key > age) break;
-					range = stats.breathing[key];
-				}
-				return range;
-			}
 		
-			var stats = {
-				breathing: {
-					[0]: {min: 30, max:60},
-					[365]: {min: 24, max:40},
-					[4*365]: {min: 22, max:34},
-					[6*365]: {min: 18, max:30},
-					[12*365]: {min: 12, max:20}
-				}
-			};
-			
-			var generate = {
-				breathing: function(ageDays) {
-					var range = rangeForAge(ageDays, stats.breathing);
-					var diff = range.max - range.min;
-					value = random(range.min-diff/2, range.max+diff/2);
-					return Math.floor(value);
-				}
-			}
-			
-			var check = {
-				breathing: function(age, value){
-					var range = rangeForAge(age, stats.breathing);
-					if(value < range.min) return -1;
-					if(range.max < value) return 1;
-					return 0;
-				}
-			}
-			
-			
+			var stats;
 		
-			function random(min, max){
-				return min + Math.random() * (max-min);
-			}
+			$(function(){
+				var patiant = {
+					age:0,
+					isMature:false
+				};
+
+				function rangeForPatient(patient, data) {
+					var range;
+					if(data.mature && patient.isMature) return data.mature;
+					for(var key in data) if(!isNaN(key)) {
+						if(key > patient.ageDays) break;
+						else range = data[key];
+					}
+					return range;
+				}
 			
-			function factor(value, fact){
+				function bp(sismin, sismax, dismin, dismax) {
+					return { systolic: {min: sismin, max: sismax}, diastolic: {min: dismin, max: dismax} };
+				}
+			
+				stats = {
+					breathing: {
+						[0]: {min: 30, max:60},
+						[365]: {min: 24, max:40},
+						[4*365]: {min: 22, max:34},
+						[6*365]: {min: 18, max:30},
+						[12*365]: {min: 12, max:20},
+						generate: function(patient) {
+							var range = rangeForPatient(patient, this);
+							var diff = range.max - range.min;
+							var value = random(range.min-diff/2, range.max+diff/2);
+							return Math.floor(value);
+						},
+						check: function(patient, value) {
+							var range = rangeForPatient(patient, this);
+							if(value < range.min) return -1;
+							if(range.max < value) return 1;
+							return 0;
+						}
+					},
+					pulse: {
+						[0]: {min: 85, max:205},
+						[90]: {min: 100, max:190},
+						[2*365]: {min: 60, max:140},
+						[10*365]: {min: 60, max:100},
+						generate: function(patient){
+							var range = rangeForPatient(patient, this);
+							var diff = range.max - range.min;
+							var value = random(range.min-diff/2, range.max+diff/2);
+							return Math.floor(value);
+						},
+						check: function(patient, value) {
+							var range = rangeForPatient(patient, this);
+							if(value < range.min) return -1;
+							if(range.max < value) return 1;
+							return 0;
+						}
+					},
+					bloodPressure: {
+						[0]: bp(60,95, 30, 55),
+						[28]: bp(70, 105, 35, 60),
+						[1*365]: bp(70, 130, 50, 85),
+						["mature"]: bp(90, 140, 60, 90),
+						generate: function(patient) {
+							var range = rangeForPatient(patient, this);
+							var maxPulsePressure =  range.systolic.max - range.diastolic.min;
+							var minPulsePressure = range.systolic.min - range.diastolic.max;
+							
+							if(maxPulsePressure < 15) maxPulsePressure = 15;
+							if(minPulsePressure < 5) minPulsePressure = 5;
+							if(minPulsePressure > maxPulsePressure-5) minPulsePressure = maxPulsePressure-5;
+							
+							var sysdiff = range.systolic.max - range.systolic.min;
+							var sysvalue = random(range.systolic.min-sysdiff/2, range.systolic.max+sysdiff/2);
+							var diasvalue = sysvalue - random(minPulsePressure, maxPulsePressure);
+							
+							return {
+								systolic:Math.floor(sysvalue), 
+								diastolic:Math.floor(diasvalue)
+								};
+						},
+						check: function(patient, value) {
+							var range = rangeForPatient(patient, this);
+							if (value.systolic < range.systolic.min) return -1;
+							if (range.systolic.max < value.systolic) return 1;
+							if (value.diastolic < range.diastolic.min) return -1;
+							if (range.diastolic.max < value.diastolic) return 1;
+							return 0;
+						}
+					}
+				};
 				
-			}
-			
-			function hideAll(){
-				$(".quizpanel").hide();
-			}
-		
-			function show(panel){
-				$("#"+panel).show();
-			}
-			
-			$("#breathingPanel #options input").click(function(){
-				var selectedVal = $(this).attr("v");
-				var correctVal = check.breathing(patiant.ageDays, $("#breathing").text());
+				function random(min, max){
+					return min + Math.random() * (max-min);
+				}
 				
-				if(selectedVal == correctVal){
-					$("#breathingPanel").css("backgroundColor", "green");
-					$("#breathingPanel").animate({ backgroundColor: "white" }, "slow");			
+				function hideAll(){
+					$(".quizpanel").hide();
+				}
+			
+				function show(panel){
+					$("#"+panel).show();
+				}
+				
+				function flashBg(selector, color){
+					$(selector).css("backgroundColor", color);
+					$(selector).animate({backgroundColor: "white"});			
+				}
+				
+				function getSelectedOption(panel){
+					return $(panel+" .options .ui-state-active").prev().attr("id").substr(1);
+				}
+				
+				$("#go").button().click(function(){
+					flashBg("body", "yellow");
 					randomizePatient();
-					goBreathing();
-				} else {
-					$("#breathingPanel").css("backgroundColor", "red");
-					$("#breathingPanel").animate({ backgroundColor: "white" }, "slow");		
-				}
-			});
-			
-			function goBreathing(ageDays, isMature){
-				hideAll();
-				$("#breathingPanel").show();
+					displayPatient();
 					
-				var rate = generate.breathing(ageDays);
-				$("#breathing").text(rate);
-			}
-			
-			function randomizePatient() {
-				patiant.ageDays = random(0*365,30*365);
-				patiant.isMature = patiant.ageDays/365 > random(10, 21);
+					var breathing = stats.breathing.generate(patiant);
+					var pulse = stats.pulse.generate(patiant);
+					var bloodPressure = stats.bloodPressure.generate(patiant);
+					
+					$("#breathing").text(breathing);
+					$("#pulse").text(pulse);
+					$("#bloodPressure").text(bpToString(bloodPressure));
+				});
 				
-				var ageString = patiant.ageDays < 365 ? Math.floor(patiant.ageDays) + " days" : Math.floor(patiant.ageDays/365) + " years";
+				$(".quizpanel .options input").after(function() {
+					return "<label for='" + this.id + "'>" + $(this).attr("text") + "</label>";
+				});
 				
-				$("#age").text(ageString);
-				$("#mature").text(patiant.isMature ? "yes" : "no");
-			}
-			
-			$("#go").click(function() {
-				randomizePatient();
-				goBreathing();
+				$(".quizpanel .options").buttonset();
+				
+				$("#check").button().click(function(){
+					// selected Breathing, Pulse, pRessure
+					var sb = getSelectedOption("#breathingPanel");
+					var sp = getSelectedOption("#pulsePanel");
+					var sr = getSelectedOption("#bloodPressurePanel");
+					
+					// correct Breating, Pulse, pRessure
+					var cb = stats.breathing.check(patiant, $("#breathing").text());
+					var cp = stats.pulse.check(patiant, $("#pulse").text());
+					var cr = stats.bloodPressure.check(patiant, stringToBp($("#bloodPressure").text()));
+					
+					if(sb == sb && sp == sp && sr == sr)
+						flashBg("body", "blue");
+				});
+				
+				function randomizePatient() {
+					patiant.ageDays = random(0*365,30*365);
+					patiant.isMature = patiant.ageDays/365 > random(10, 21);
+				}
+				
+				function displayPatient(){
+					var ageString = patiant.ageDays < 365 ? Math.floor(patiant.ageDays) + " days" : Math.floor(patiant.ageDays/365) + " years";
+					$("#age").text(ageString);
+					$("#mature").text(patiant.isMature ? "yes" : "no");
+				}
+				
+				function bpToString(bp){ return bp.systolic + " / " +bp.diastolic; }
+				function stringToBp(str) {
+					var matches = /(\d+)\s*\/\s*(\d+)/.exec(str);
+					return {systolic:matches[1], diastolic:matches[2]};
+				}
+				
 			});
 		</script>
 	</body>
