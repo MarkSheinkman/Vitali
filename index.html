@@ -162,7 +162,9 @@
 			}
 			
 			function getSelectedOption(panel){
-				return $(panel+" .options .ui-state-active").prev().attr("id").substr(1);
+				var selected = $(panel+" .options .ui-state-active");
+				if(selected.length==0) return;
+				return selected.prev().attr("id").substr(1);
 			}
 			
 			function newPatient() {
