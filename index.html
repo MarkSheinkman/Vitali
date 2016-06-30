@@ -6,20 +6,37 @@
 		<script src="jquery.color.js"></script>
 		<style>
 			body{
-				font-size: 2em;
+				font-size: 1.7em;
 				font-family: Arial;
+			}
+			#instructions{
+				width:650;
+				margin: 10px;
+			}
+			#patientData{
+				margin: 20px;
 			}
 			.quizpanel {
 				margin:10px
 			}
 			.options {
-				padding: 15px;
+				padding: 5px;
 				margin: 5px;
 				display: inline-block;
 			}
 		</style>
 	</head>
 	<body>
+	
+		<div id="instructions">
+			You're treating a patient with the following vital signs. His life depends on your diagnosis and if you get the numbers wrong he'll die horribly. Select the correct breathing, pulse and blood pressure diagnosis for these values to save that poor soul.
+			<b>
+			<br> <font color="blue">Blue</font> background means you've saved the patient.
+			<br> <font color="red">Red</font> means he's dead and it's all your fault.
+			<br> Press 'I'm done' when you're done to see the result.
+			</b>
+		</div>
+	
 		<div id="patientData">
 			<div>Age: <span id="age">000</span></div>
 			<div>Signs of maturity: <span id="mature">???</span></div>
@@ -30,6 +47,7 @@
 		
 		<div class="quizpanel" id="breathingPanel">
 			<div class="options">
+				Breathing:
 				<input type="radio" name="breathingOption" id="b-1" text="Bradypnea">
 				<input type="radio" name="breathingOption" id="b0" 	  text="Normal">
 				<input type="radio" name="breathingOption" id="b1" text="Tachipnea">
@@ -38,6 +56,7 @@
 		
 		<div class="quizpanel" id="pulsePanel">
 			<div class="options">
+				Pulse:
 				<input type="radio" name="pulseOption" id="p-1" text="Bradycardia">
 				<input type="radio" name="pulseOption" id="p0" text="Normal">
 				<input type="radio" name="pulseOption" id="p1" text="Tachicardia">
@@ -46,6 +65,7 @@
 		
 		<div class="quizpanel" id="bloodPressurePanel">
 			<div class="options">
+				Blood Pressure:
 				<input type="radio" name="bloodPressureOption" id="r-1"    text="Low">
 				<input type="radio" name="bloodPressureOption" id="r0" text="Normal">
 				<input type="radio" name="bloodPressureOption" id="r1"   text="High">
@@ -53,8 +73,8 @@
 		</div>
 		
 		<div>
-			<input type="button" id="check" value="Check"/>
-			<input id="next" type="button" value="Next"/>
+			<input type="button" id="check" value="I'm done, will he live?"/>
+			<input id="next" type="button" value="Ok, bring me another!"/>
 		</div>
 		
 		<script>
