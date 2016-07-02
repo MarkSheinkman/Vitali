@@ -142,18 +142,16 @@
 					["mature"]: bp(90, 140, 60, 90),
 					generate: function(patient) {
 						var range = rangeForPatient(patient, this);
-						var maxPulsePressure =  range.systolic.max - range.diastolic.min;
-						var minPulsePressure = range.systolic.min - range.diastolic.max;
-						
-						if(maxPulsePressure < 15) maxPulsePressure = 15;
-						if(minPulsePressure < 5) minPulsePressure = 5;
-						if(minPulsePressure > maxPulsePressure-5) minPulsePressure = maxPulsePressure-5;
 						
 						var sysdiff = range.systolic.max - range.systolic.min;
-						var sysvalue = random(range.systolic.min-sysdiff/2, range.systolic.max+sysdiff/2);
-						var diasvalue = sysvalue - random(minPulsePressure, maxPulsePressure);
+						var sysmin = range.systolic.min-sysdiff/2;
+						var sysmax = range.systolic.max + sysdiff/2;
+						if(sysmin < 20) sysmin = 20;
+						var sysvalue = random(sysmin, sysmax);
 						
-						if(diasvalue < 20) diasvalue = 20;
+						var pulsePressure = random(15, 75); // normal is 30-60
+						var diasvalue = sysvalue - pulsePressure;
+						if(diasvalue < 5) diasvalue = 5;
 						
 						return {
 							systolic:Math.floor(sysvalue), 
