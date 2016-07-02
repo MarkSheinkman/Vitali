@@ -138,7 +138,7 @@
 				bloodPressure: {
 					[0]: bp(60,95, 30, 55),
 					[28]: bp(70, 105, 35, 60),
-					[1*365]: bp(70, 130, 50, 85),
+					[1*365]: bp(70, 130, 25, 85),
 					["mature"]: bp(90, 140, 60, 90),
 					generate: function(patient) {
 						var range = rangeForPatient(patient, this);
@@ -152,6 +152,8 @@
 						var sysdiff = range.systolic.max - range.systolic.min;
 						var sysvalue = random(range.systolic.min-sysdiff/2, range.systolic.max+sysdiff/2);
 						var diasvalue = sysvalue - random(minPulsePressure, maxPulsePressure);
+						
+						if(diasvalue < 20) diasvalue = 20;
 						
 						return {
 							systolic:Math.floor(sysvalue), 
@@ -243,7 +245,7 @@
 			
 			function bpToString(bp){ return bp.systolic + " / " +bp.diastolic; }
 			function stringToBp(str) {
-				var matches = /(\d+)\s*\/\s*(\d+)/.exec(str);
+				var matches = /(-?\d+)\s*\/\s*(-?\d+)/.exec(str);
 				return {systolic:matches[1], diastolic:matches[2]};
 			}
 			
